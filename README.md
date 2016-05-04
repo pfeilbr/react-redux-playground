@@ -13,4 +13,4 @@ learn and experiment with
 
 1. `npm install`
 2. `npm start`
-3. open http://localhost:8000/ in the browser
+3. open http://localhost:8080/webpack-dev-server/ in the browser

@@ -15,6 +15,8 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 
 import fetch from 'isomorphic-fetch'
 
+import './main.css'
+
 import {
   PageHeader,
   Nav,
@@ -145,7 +147,7 @@ class WeatherComponent extends Component {
     const {zip, temperature, isFetching} = this.props;
     return (
       <div style={Styles.container}>
-        <h3>WeatherComponent</h3>
+        <h3>Weather Component</h3>
         <p style={{opacity: (isFetching ? '0.5' : '1.0')}}>
           current temperature for <em>{zip}</em> is {temperature}
         </p>
@@ -202,6 +204,7 @@ class App extends Component {
     );
   }
 }
+
 
 // redux-devtools
 const DevTools = createDevTools(
