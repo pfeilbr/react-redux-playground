@@ -1,0 +1,44 @@
+{
+  "name": "react-redux-playground",
+  "version": "0.0.0",
+  "description": "react-redux-playground",
+  "main": "index.js",
+  "scripts": {
+    "start": "watchify --extension=js -o bundle.js index.js & ./node_modules/.bin/lite-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackielii/simplest-redux-example.git"
+  },
+  "keywords": [
+    "redux",
+    "react"
+  ],
+  "author": "Jackie Li",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jackielii/simplest-redux-example/issues"
+  },
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  },
+  "homepage": "https://github.com/jackielii/simplest-redux-example#readme",
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1",
+    "react": "^15.0.2",
+    "react-dom": "^15.0.2",
+    "react-redux": "^4.4.5",
+    "redux": "^3.5.2",
+    "redux-thunk": "^2.0.1"
+  },
+  "devDependencies": {
+    "babelify": "~6.1.2",
+    "browserify": "~10.2.4",
+    "concurrently": "^2.0.0",
+    "lite-server": "^2.2.0",
+    "redux-logger": "^2.6.1",
+    "watchify": "^3.3.1"
+  }
+}
