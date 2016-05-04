@@ -4,21 +4,25 @@ import DockMonitor from 'redux-devtools-dock-monitor'
 
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
+
 import { combineReducers, createStore, applyMiddleware, compose } from 'redux'
 import { Provider, connect } from 'react-redux'
 import thunk from 'redux-thunk'
 import createLogger from 'redux-logger'
-import { Link, Router, Route, browserHistory } from 'react-router'
+
+import { Link, Router, Route, IndexRoute, browserHistory } from 'react-router'
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
+
 import fetch from 'isomorphic-fetch'
 
-const DevTools = createDevTools(
-  <DockMonitor toggleVisibilityKey="ctrl-h" changePositionKey="ctrl-q">
-    <LogMonitor theme="tomorrow" preserveScrollTop={false} />
-  </DockMonitor>
-)
+import {
+  PageHeader,
+  Nav,
+  NavItem,
+  Button
+} from 'react-bootstrap'
 
-
+// styles
 const Styles = {
   container: {
     border: 'solid black 1px',
@@ -27,7 +31,7 @@ const Styles = {
   }
 }
 
-// React component
+/* counter */
 class Counter extends Component {
   render(){
     const { value, onIncreaseClick } = this.props;
@@ -35,16 +39,16 @@ class Counter extends Component {
       <div style={Styles.container}>
         <h3>Counter Component</h3>
         <div>{value}</div>
-        <button onClick={onIncreaseClick}>add 1</button>
+        <Button onClick={onIncreaseClick}>add 1</Button>
       </div>
     );
   }
 }
 
-// Action:
+// action(s)
 const increaseAction = {type: 'increase'};
 
-// Reducer:
+// reducer(s)
 function counter(state={count: 0}, action) {
   let count = state.count;
   switch(action.type){
@@ -55,21 +59,21 @@ function counter(state={count: 0}, action) {
   }
 }
 
-// Map Redux state to component props
+// map state to props
 function mapStateToProps(state)  {
   return {
     value: state.count
   };
 }
 
-// Map Redux actions to component props
+// map actions to props
 function mapDispatchToProps(dispatch) {
   return {
     onIncreaseClick: () => dispatch(increaseAction)
   };
 }
 
-// Connected Component:
+// container
 let CounterContainer = connect(
   mapStateToProps,
   mapDispatchToProps
@@ -145,7 +149,7 @@ class WeatherComponent extends Component {
         <p style={{opacity: (isFetching ? '0.5' : '1.0')}}>
           current temperature for <em>{zip}</em> is {temperature}
         </p>
-        <button onClick={this.handleRefreshClick}>refresh</button>
+        <Button onClick={this.handleRefreshClick}>refresh</Button>
       </div>
     )
   }
@@ -167,58 +171,80 @@ const Header = ({title}) => (
   <h1>{title}</h1>
 )
 
-const App = ({ children }) => (
-  <div>
-    <Header title="react-redux-playground" />
+const HomeComponent = () => (
+  <p>Welcome to the <strong>react-redux-playground</strong></p>
+)
 
-      <header>
-              Links:
-              {' '}
-              <Link to="/">Home</Link>
-              {' '}
-              <Link to="/counter">Counter</Link>
-              {' '}
-              <Link to="/weather">Weather</Link>
-    </header>
 
-    <div>
-      <button onClick={() => browserHistory.push('/weather')}>Go to /weather</button>
-    </div>
+class App extends Component {
 
-    <div style={{ marginTop: '1.5em' }}>{children}</div>
+  constructor(props) {
+    super(props)
+    this.selectSection = this.selectSection.bind(this);
+  }
 
-  </div>
+  selectSection(key) {
+    browserHistory.push(key);
+  }
+
+  render() {
+    const { children } = this.props;
+    return (
+      <div>
+        <PageHeader>react-redux-playground</PageHeader>
+        <Nav ref="nav" bsStyle="tabs" onSelect={this.selectSection}>
+          <NavItem eventKey={'/'} title="Home">Home</NavItem>
+          <NavItem eventKey={'/counter'} title="Counter">Counter</NavItem>
+          <NavItem eventKey={'/weather'} title="Weather">Weather</NavItem>
+        </Nav>
+        <div style={{ marginTop: '1.5em' }}>{children}</div>
+      </div>
+    );
+  }
+}
+
+// redux-devtools
+const DevTools = createDevTools(
+  <DockMonitor toggleVisibilityKey="ctrl-h" changePositionKey="ctrl-q">
+    <LogMonitor theme="tomorrow" preserveScrollTop={false} />
+  </DockMonitor>
 )
 
 const enhancer = compose(
   // Middleware you want to use in development:
-  applyMiddleware(thunk, createLogger()),
+  applyMiddleware(
+    thunk,
+    createLogger()
+  ),
   // Required! Enable Redux DevTools with the monitors you chose
   DevTools.instrument()
 );
 
 // store
-let store = createStore(
-  combineReducers({
-    counter,
-    weather,
-    routing: routerReducer
-  }), {
+const INITIAL_STATE = {
   weather: {
     isFetching: false,
     zip: '19446',
     temperature: 0
   }
-}, enhancer);
+};
+
+let store = createStore(
+  combineReducers({
+    counter,
+    weather,
+    routing: routerReducer
+  }), INITIAL_STATE, enhancer);
 
 const history = syncHistoryWithStore(browserHistory, store)
 
-// render
+// render with routing
 ReactDOM.render(
   <Provider store={store}>
     <div>
       <Router history={history}>
         <Route path="/" component={App}>
+          <IndexRoute component={HomeComponent}/>
           <Route path="counter" component={CounterContainer} />
           <Route path="weather" component={WeatherContainer} />
         </Route>
