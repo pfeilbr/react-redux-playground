@@ -1,12 +1,23 @@
+import { createDevTools } from 'redux-devtools'
+import LogMonitor from 'redux-devtools-log-monitor'
+import DockMonitor from 'redux-devtools-dock-monitor'
+
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { combineReducers, createStore, applyMiddleware } from 'redux'
+import { combineReducers, createStore, applyMiddleware, compose } from 'redux'
 import { Provider, connect } from 'react-redux'
 import thunk from 'redux-thunk'
 import createLogger from 'redux-logger'
 import { Link, Router, Route, browserHistory } from 'react-router'
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import fetch from 'isomorphic-fetch'
+
+const DevTools = createDevTools(
+  <DockMonitor toggleVisibilityKey="ctrl-h" changePositionKey="ctrl-q">
+    <LogMonitor theme="tomorrow" preserveScrollTop={false} />
+  </DockMonitor>
+)
+
 
 const Styles = {
   container: {
@@ -179,6 +190,13 @@ const App = ({ children }) => (
   </div>
 )
 
+const enhancer = compose(
+  // Middleware you want to use in development:
+  applyMiddleware(thunk, createLogger()),
+  // Required! Enable Redux DevTools with the monitors you chose
+  DevTools.instrument()
+);
+
 // store
 let store = createStore(
   combineReducers({
@@ -191,20 +209,22 @@ let store = createStore(
     zip: '19446',
     temperature: 0
   }
-}, applyMiddleware(thunk, createLogger()));
+}, enhancer);
 
 const history = syncHistoryWithStore(browserHistory, store)
 
 // render
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={history}>
-      <Route path="/" component={App}>
-        <Route path="counter" component={CounterContainer} />
-        <Route path="weather" component={WeatherContainer} />
-      </Route>
-    </Router>
-
+    <div>
+      <Router history={history}>
+        <Route path="/" component={App}>
+          <Route path="counter" component={CounterContainer} />
+          <Route path="weather" component={WeatherContainer} />
+        </Route>
+      </Router>
+      <DevTools />
+    </div>
   </Provider>,
   document.getElementById('root')
 );
