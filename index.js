@@ -1,10 +1,12 @@
-import React, { Component, PropTypes } from 'react';
-import ReactDOM from 'react-dom';
-import { combineReducers, createStore, applyMiddleware } from 'redux';
-import { Provider, connect } from 'react-redux';
-import thunk from 'redux-thunk';
-import createLogger from 'redux-logger';
-import fetch from 'isomorphic-fetch';
+import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
+import { combineReducers, createStore, applyMiddleware } from 'redux'
+import { Provider, connect } from 'react-redux'
+import thunk from 'redux-thunk'
+import createLogger from 'redux-logger'
+import { Link, Router, Route, browserHistory } from 'react-router'
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
+import fetch from 'isomorphic-fetch'
 
 const Styles = {
   container: {
@@ -154,17 +156,36 @@ const Header = ({title}) => (
   <h1>{title}</h1>
 )
 
-const App = () => (
+const App = ({ children }) => (
   <div>
     <Header title="react-redux-playground" />
-    <CounterContainer />
-    <WeatherContainer />
+
+      <header>
+              Links:
+              {' '}
+              <Link to="/">Home</Link>
+              {' '}
+              <Link to="/counter">Counter</Link>
+              {' '}
+              <Link to="/weather">Weather</Link>
+    </header>
+
+    <div>
+      <button onClick={() => browserHistory.push('/weather')}>Go to /weather</button>
+    </div>
+
+    <div style={{ marginTop: '1.5em' }}>{children}</div>
+
   </div>
 )
 
 // store
 let store = createStore(
-  combineReducers({counter, weather}), {
+  combineReducers({
+    counter,
+    weather,
+    routing: routerReducer
+  }), {
   weather: {
     isFetching: false,
     zip: '19446',
@@ -172,10 +193,18 @@ let store = createStore(
   }
 }, applyMiddleware(thunk, createLogger()));
 
+const history = syncHistoryWithStore(browserHistory, store)
+
 // render
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <Router history={history}>
+      <Route path="/" component={App}>
+        <Route path="counter" component={CounterContainer} />
+        <Route path="weather" component={WeatherContainer} />
+      </Route>
+    </Router>
+
   </Provider>,
   document.getElementById('root')
 );
