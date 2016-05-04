@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { combineReducers, createStore, applyMiddleware } from 'redux';
 import { Provider, connect } from 'react-redux';
@@ -6,12 +6,20 @@ import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import fetch from 'isomorphic-fetch';
 
+const Styles = {
+  container: {
+    border: 'solid black 1px',
+    padding: '10px',
+    margin: '10px'
+  }
+}
+
 // React component
-class Counter extends React.Component {
+class Counter extends Component {
   render(){
     const { value, onIncreaseClick } = this.props;
     return (
-      <div style={{border: 'solid black 1px', 'padding': '10px'}}>
+      <div style={Styles.container}>
         <h3>Counter Component</h3>
         <div>{value}</div>
         <button onClick={onIncreaseClick}>add 1</button>
@@ -56,7 +64,7 @@ let CounterContainer = connect(
 
 /* --- */
 
-const OPENWEATHERMAP_API_KEY = '747bd17befc126e49cac06af7840760c';
+const OPENWEATHERMAP_API_KEY = '747bd17befc126e49cac06af7840760c'
 
 const weatherURLForZip = (zip) => `http://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&APPID=${OPENWEATHERMAP_API_KEY}`
 
@@ -97,7 +105,7 @@ const fetchWeather = (zip) => {
   }
 }
 
-class WeatherComponent extends React.Component {
+class WeatherComponent extends Component {
 
   constructor(props) {
     super(props)
@@ -119,7 +127,7 @@ class WeatherComponent extends React.Component {
   render() {
     const {zip, temperature, isFetching} = this.props;
     return (
-      <div>
+      <div style={Styles.container}>
         <h3>WeatherComponent</h3>
         <p style={{opacity: (isFetching ? '0.5' : '1.0')}}>
           current temperature for <em>{zip}</em> is {temperature}
@@ -131,14 +139,15 @@ class WeatherComponent extends React.Component {
 
 }
 
+WeatherComponent.propTypes = {
+  zip: PropTypes.string.isRequired,
+  temperature: PropTypes.number.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  dispatch: PropTypes.func.isRequired
+}
+
 const WeatherContainer = connect(
-  (state) => (
-    {
-      zip: state.weather.zip,
-      temperature: state.weather.temperature,
-      isFetching: state.weather.isFetching
-    }
-  )
+  (state) => state.weather
 )(WeatherComponent);
 
 const Header = ({title}) => (
@@ -154,14 +163,12 @@ const App = () => (
 )
 
 // store
-
-
-
 let store = createStore(
   combineReducers({counter, weather}), {
   weather: {
+    isFetching: false,
     zip: '19446',
-    temperature: 'searching ...'
+    temperature: 0
   }
 }, applyMiddleware(thunk, createLogger()));
 
