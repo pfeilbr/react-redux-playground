@@ -1,7 +1,7 @@
 var webpack = require('webpack')
 
 module.exports = {
-  devtool: 'eval-source-map',
+  devtool: 'inline-source-map',
   entry: [
     './index.js'
   ],
@@ -23,7 +23,7 @@ module.exports = {
         },
         {
           test: /\.css?$/,
-          loaders: [ 'style', 'raw' ],
+          loaders: [ 'style', 'css' ],
           include: __dirname
         }
       ]
